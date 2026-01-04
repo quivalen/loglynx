@@ -2,7 +2,7 @@ name: Docker Publish
 
 on:
   push:
-    branches: [ main, dev ]
+    branches: [ main, dev, arm64test ]
   release:
     types: [ published ]
 
@@ -29,6 +29,14 @@ jobs:
 
       - name: Prepare image name
         run: echo "IMAGE=${{ secrets.DOCKERHUB_USERNAME }}/loglynx" >> $GITHUB_ENV
+
+      - name: Build and push (arm64test branch -> arm64test)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/arm64test'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ env.IMAGE }}:arm64test
 
       - name: Build and push (dev branch -> dev-k)
         if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
